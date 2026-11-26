@@ -1,0 +1,68 @@
+Library.java :
+package com.lab; 
+ 
+import java.util.Set; 
+import java.util.Map; 
+ 
+public class Library { 
+    private Set<String> bookTitles; 
+    private Map<String, String> authorBookMap; 
+ 
+    public void setBookTitles(Set<String> bookTitles) { this.bookTitles = 
+bookTitles; } 
+    public void setAuthorBookMap(Map<String, String> authorBookMap) { 
+this.authorBookMap = authorBookMap; } 
+ 
+    public void display() { 
+        System.out.println("===== Library Catalog ====="); 
+        System.out.println("Unique Book Titles (Set):"); 
+        bookTitles.forEach(b -> System.out.println(" -> " + b)); 
+        System.out.println(" 
+Author-to-Book Mappings (Map):"); 
+        authorBookMap.forEach((author, title) -> System.out.println(" -> 
+" + author + " : " + title)); 
+    } 
+} 
+
+Beans.xml :
+<?xml version="1.0" encoding="UTF-8"?> 
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans/spring-beans.xsd"> 
+ 
+    <bean id="library" class="com.lab.Library"> 
+ 
+        <property name="bookTitles"> 
+            <set> 
+                <value>Spring in Action</value> 
+                <value>Effective Java</value> 
+                <value>Clean Code</value> 
+            </set> 
+        </property> 
+        <property name="authorBookMap"> 
+            <map> 
+                <entry key="Craig Walls" value="Spring in Action"/> 
+                <entry key="Joshua Bloch" value="Effective Java"/> 
+                <entry key="Robert C. Martin" value="Clean Code"/> 
+            </map> 
+        </property> 
+    </bean> 
+</beans> 
+
+App.java :
+package com.lab; 
+ 
+import org.springframework.context.ApplicationContext; 
+import 
+org.springframework.context.support.ClassPathXmlApplicationContext; 
+ 
+public class App { 
+    public static void main(String[] args) { 
+        ApplicationContext context = new 
+ClassPathXmlApplicationContext("Beans.xml"); 
+        Library lib = context.getBean("library", Library.class); 
+        lib.display(); 
+        ((ClassPathXmlApplicationContext) context).close(); 
+    } 
+}

@@ -1,0 +1,59 @@
+Student.java :
+package com.lab; 
+ 
+import org.springframework.stereotype.Component; 
+@Component 
+public class Student { 
+    public String getInfo() { 
+        return "Student Name: Abhishek Verma | Seat No: 2414304"; 
+    } 
+} 
+
+
+StudentService.java :
+package com.lab; 
+ 
+import org.springframework.beans.factory.annotation.Autowired; 
+import org.springframework.stereotype.Service; 
+ 
+@Service 
+public class StudentService { 
+    @Autowired 
+    private Student student; 
+ 
+    public void display() { 
+        System.out.println("--- Student Details via Service ---"); 
+        System.out.println(student.getInfo()); 
+    } 
+} 
+
+
+Beans.xml :
+<?xml version="1.0" encoding="UTF-8"?> 
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:context="http://www.springframework.org/schema/context" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans/spring-beans.xsd 
+       http://www.springframework.org/schema/context 
+       http://www.springframework.org/schema/context/spring-context.xsd"> 
+ 
+    <context:component-scan base-package="com.lab"/> 
+</beans> 
+
+
+App.java :
+package com.lab; 
+import org.springframework.context.ApplicationContext; 
+import 
+org.springframework.context.support.ClassPathXmlApplicationContext; 
+ 
+public class App { 
+    public static void main(String[] args) { 
+        ApplicationContext context = new 
+ClassPathXmlApplicationContext("Beans.xml"); 
+        StudentService service = context.getBean(StudentService.class); 
+        service.display(); 
+        ((ClassPathXmlApplicationContext) context).close(); 
+    } 
+} 

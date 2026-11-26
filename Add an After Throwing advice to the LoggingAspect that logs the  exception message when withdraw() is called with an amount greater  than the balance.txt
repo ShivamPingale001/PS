@@ -1,0 +1,75 @@
+BankService.java :
+package com.lab; 
+ 
+import org.springframework.stereotype.Service; 
+ 
+@Service 
+public class BankService { 
+    private double balance = 10000.0; 
+ 
+    public void withdraw(double amount) { 
+        if (amount > balance) { 
+            throw new IllegalArgumentException("Requested Rs. " + amount 
++ " exceeds balance Rs. " + balance); 
+        } 
+        balance -= amount; 
+        System.out.println("Remaining Balance: Rs. " + balance); 
+ 
+    } 
+} 
+
+
+LoggingAspect.java :
+package com.lab; 
+ 
+import org.aspectj.lang.annotation.AfterThrowing; 
+import org.aspectj.lang.annotation.Aspect; 
+import org.springframework.stereotype.Component; 
+ 
+@Aspect 
+@Component 
+public class LoggingAspect { 
+    @AfterThrowing(pointcut = "execution(* 
+com.lab.BankService.withdraw(..))", throwing = "ex") 
+    public void logException(IllegalArgumentException ex) { 
+        System.err.println("[AOP AUDIT EXCEPTION] " + ex.getMessage()); 
+    } 
+} 
+
+
+Beans.xml :
+<?xml version="1.0" encoding="UTF-8"?> 
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:context="http://www.springframework.org/schema/context" 
+       xmlns:aop="http://www.springframework.org/schema/aop" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+http://www.springframework.org/schema/beans/spring-beans.xsd 
+       http://www.springframework.org/schema/context 
+http://www.springframework.org/schema/context/spring-context.xsd 
+       http://www.springframework.org/schema/aop 
+http://www.springframework.org/schema/aop/spring-aop.xsd"> 
+ 
+    <context:component-scan base-package="com.lab"/> 
+    <aop:aspectj-autoproxy/> 
+</beans> 
+
+
+App.java :
+package com.lab; 
+ 
+import org.springframework.context.ApplicationContext; 
+
+import org.springframework.context.support.ClassPathXmlApplicationContext; 
+ 
+public class App { 
+    public static void main(String[] args) { 
+        ApplicationContext ctx = new 
+ClassPathXmlApplicationContext("Beans.xml"); 
+        BankService bank = ctx.getBean(BankService.class); 
+        try { 
+            bank.withdraw(15000.0); 
+        } catch (IllegalArgumentException ignored) {} 
+        ((ClassPathXmlApplicationContext) ctx).close(); 
+    } 
+}

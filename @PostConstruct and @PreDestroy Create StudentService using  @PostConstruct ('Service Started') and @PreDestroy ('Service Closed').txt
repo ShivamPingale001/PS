@@ -1,0 +1,55 @@
+StudentService.java :
+package com.lab; 
+import org.springframework.stereotype.Service; 
+import jakarta.annotation.PostConstruct; 
+import jakarta.annotation.PreDestroy; 
+ 
+@Service 
+public class StudentService { 
+    @PostConstruct 
+    public void init() { 
+        System.out.println("[Lifecycle] Service Started: Database 
+connection pool allocated."); 
+    } 
+ 
+    public void performTask() { 
+        System.out.println("[Business Logic] Processing student 
+enrollment records..."); 
+    } 
+ 
+    @PreDestroy 
+    public void cleanup() { 
+        System.out.println("[Lifecycle] Service Closed: Database 
+connections closed successfully."); 
+    } 
+} 
+
+
+Beans.xml :
+<?xml version="1.0" encoding="UTF-8"?> 
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:context="http://www.springframework.org/schema/context" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans/spring-beans.xsd 
+       http://www.springframework.org/schema/context 
+       http://www.springframework.org/schema/context/spring-context.xsd"> 
+ 
+    <context:component-scan base-package="com.lab"/> 
+</beans> 
+
+
+App.java :
+package com.lab; 
+ 
+import 
+org.springframework.context.support.ClassPathXmlApplicationContext; 
+public class App { 
+    public static void main(String[] args) { 
+        ClassPathXmlApplicationContext context = new 
+ClassPathXmlApplicationContext("Beans.xml"); 
+        StudentService service = context.getBean(StudentService.class); 
+        service.performTask(); 
+        context.close(); 
+    } 
+}

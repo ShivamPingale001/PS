@@ -1,0 +1,68 @@
+EmployeeDao.java : 
+package com.lab; 
+ 
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource; 
+import 
+org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate; 
+import javax.sql.DataSource; 
+import java.util.List; 
+ 
+public class EmployeeDao { 
+    private NamedParameterJdbcTemplate namedTemplate; 
+ 
+    public void setDataSource(DataSource ds) { 
+        this.namedTemplate = new NamedParameterJdbcTemplate(ds); 
+    } 
+ 
+    public List<String> getHighEarners(double threshold) { 
+        String sql = "SELECT name FROM employee WHERE salary > 
+:minSalary"; 
+        MapSqlParameterSource params = new 
+MapSqlParameterSource("minSalary", threshold); 
+        return namedTemplate.queryForList(sql, params, String.class); 
+    } 
+} 
+
+
+Beans.xml :
+<?xml version="1.0" encoding="UTF-8"?> 
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+
+http://www.springframework.org/schema/beans/spring-beans.xsd"> 
+ 
+    <bean id="dataSource" 
+class="org.springframework.jdbc.datasource.DriverManagerDataSource"> 
+        <property name="driverClassName" value="org.h2.Driver"/> 
+        <property name="url" value="jdbc:h2:mem:empdb;DB_CLOSE_DELAY=
+1;INIT=CREATE TABLE employee(id INT, name VARCHAR(50), salary 
+DOUBLE)\;INSERT INTO employee VALUES (1,'Aditi Sharma',75000)\;INSERT 
+INTO employee VALUES (2,'Rajesh Verma',42000)"/> 
+    </bean> 
+ 
+    <bean id="empDao" class="com.lab.EmployeeDao"> 
+        <property name="dataSource" ref="dataSource"/> 
+    </bean> 
+</beans> 
+
+
+App.java :
+package com.lab; 
+ 
+import org.springframework.context.ApplicationContext; 
+import 
+org.springframework.context.support.ClassPathXmlApplicationContext; 
+ 
+public class App { 
+    public static void main(String[] args) { 
+        ApplicationContext ctx = new 
+ClassPathXmlApplicationContext("Beans.xml"); 
+        EmployeeDao dao = ctx.getBean("empDao", EmployeeDao.class); 
+        System.out.println("NamedParameter Query -> Employees with Salary 
+> 50000:"); 
+        List<String> list = dao.getHighEarners(50000.0); 
+        list.forEach(name -> System.out.println(" -> " + name)); 
+        ((ClassPathXmlApplicationContext) ctx).close(); 
+    } 
+}

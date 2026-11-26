@@ -1,0 +1,81 @@
+Employee.java :
+package com.lab; 
+ 
+public class Employee { 
+    private int id; 
+    private String name; 
+    private double salary; 
+ 
+    public Employee(int id, String name, double salary) { 
+        this.id = id; this.name = name; this.salary = salary; 
+    } 
+    public int getId() { return id; } 
+    public String getName() { return name; } 
+    public double getSalary() { return salary; } 
+} 
+
+
+EmployeeDao.java :
+package com.lab; 
+ 
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert; 
+import javax.sql.DataSource; 
+import java.util.HashMap; 
+import java.util.Map; 
+ 
+public class EmployeeDao { 
+    private SimpleJdbcInsert insertActor; 
+ 
+    public void setDataSource(DataSource ds) { 
+        this.insertActor = new 
+SimpleJdbcInsert(ds).withTableName("employee"); 
+    } 
+ 
+    public void addEmployee(Employee emp) { 
+        Map<String, Object> params = new HashMap<>(); 
+        params.put("id", emp.getId()); 
+        params.put("name", emp.getName()); 
+        params.put("salary", emp.getSalary()); 
+        insertActor.execute(params); 
+        System.out.println("SimpleJdbcInsert: Successfully saved Employee 
+[ID=" + emp.getId() + ", Name=" + emp.getName() + "]"); 
+    } 
+} 
+
+
+Beans.xml :
+<?xml version="1.0" encoding="UTF-8"?> 
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+http://www.springframework.org/schema/beans/spring-beans.xsd"> 
+ 
+    <bean id="dataSource" 
+class="org.springframework.jdbc.datasource.DriverManagerDataSource"> 
+        <property name="driverClassName" value="org.h2.Driver"/> 
+        <property name="url" value="jdbc:h2:mem:empdb;DB_CLOSE_DELAY=
+1;INIT=CREATE TABLE employee(id INT, name VARCHAR(50), salary DOUBLE)"/> 
+    </bean> 
+ 
+    <bean id="empDao" class="com.lab.EmployeeDao"> 
+        <property name="dataSource" ref="dataSource"/> 
+    </bean> 
+</beans> 
+
+
+App.java :
+package com.lab; 
+ 
+import org.springframework.context.ApplicationContext; 
+import 
+org.springframework.context.support.ClassPathXmlApplicationContext; 
+ 
+public class App { 
+    public static void main(String[] args) { 
+        ApplicationContext ctx = new 
+ClassPathXmlApplicationContext("Beans.xml"); 
+        EmployeeDao dao = ctx.getBean("empDao", EmployeeDao.class); 
+        dao.addEmployee(new Employee(201, "Karan Malhotra", 68000.0)); 
+        ((ClassPathXmlApplicationContext) ctx).close(); 
+    } 
+}

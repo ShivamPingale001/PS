@@ -1,0 +1,91 @@
+AuditLogService.java :
+package com.lab; 
+ 
+import org.springframework.stereotype.Service; 
+import org.springframework.transaction.annotation.Propagation; 
+import org.springframework.transaction.annotation.Transactional; 
+ 
+@Service 
+public class AuditLogService { 
+    @Transactional(propagation = Propagation.REQUIRES_NEW) 
+    public void logAttempt(String message) { 
+        System.out.println("[REQUIRES_NEW] Audit log saved & committed 
+independently: " + message); 
+    } 
+} 
+
+ 
+TransferService.java :
+package com.lab; 
+ 
+import org.springframework.beans.factory.annotation.Autowired; 
+import org.springframework.stereotype.Service; 
+import org.springframework.transaction.annotation.Transactional; 
+ 
+@Service 
+public class TransferService { 
+    @Autowired 
+    private AuditLogService logService; 
+ 
+    @Transactional 
+    public void transferFunds(double amount) { 
+        logService.logAttempt("Transfer attempt initiated for Rs. " + 
+amount); 
+        if (amount > 50000) { 
+            throw new RuntimeException("Limit exceeded! Outer fund 
+transfer transaction rolled back."); 
+        } 
+        System.out.println("Funds transferred successfully."); 
+    } 
+} 
+
+
+Beans.xml :
+<?xml version="1.0" encoding="UTF-8"?> 
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:context="http://www.springframework.org/schema/context" 
+       xmlns:tx="http://www.springframework.org/schema/tx" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+http://www.springframework.org/schema/beans/spring-beans.xsd 
+       http://www.springframework.org/schema/context 
+http://www.springframework.org/schema/context/spring-context.xsd 
+       http://www.springframework.org/schema/tx 
+http://www.springframework.org/schema/tx/spring-tx.xsd"> 
+ 
+    <context:component-scan base-package="com.lab"/> 
+    <bean id="dataSource" 
+class="org.springframework.jdbc.datasource.DriverManagerDataSource"> 
+        <property name="driverClassName" value="org.h2.Driver"/> 
+        <property name="url" value="jdbc:h2:mem:bankdb;DB_CLOSE_DELAY=
+1"/> 
+    </bean> 
+    <bean id="transactionManager" 
+class="org.springframework.jdbc.datasource.DataSourceTransactionManager"> 
+        <property name="dataSource" ref="dataSource"/> 
+    </bean> 
+    <tx:annotation-driven transaction-manager="transactionManager"/> 
+</beans> 
+
+
+App.java :
+package com.lab; 
+ 
+import org.springframework.context.ApplicationContext; 
+import 
+org.springframework.context.support.ClassPathXmlApplicationContext; 
+ 
+public class App { 
+    public static void main(String[] args) { 
+        ApplicationContext ctx = new 
+ClassPathXmlApplicationContext("Beans.xml"); 
+        TransferService ts = ctx.getBean(TransferService.class); 
+        try { 
+            ts.transferFunds(75000); 
+        } catch (Exception e) { 
+            System.err.println("Caller Caught Rollback: " + 
+e.getMessage()); 
+        } 
+        ((ClassPathXmlApplicationContext) ctx).close(); 
+    } 
+} 

@@ -1,0 +1,69 @@
+BankService.java :
+package com.lab; 
+import org.springframework.stereotype.Service; 
+@Service 
+public class BankService { 
+    public void deposit(double amount) { 
+        try { Thread.sleep(65); } catch (InterruptedException ignored) {} 
+        System.out.println("Deposited amount: Rs. " + amount); 
+    } 
+} 
+
+
+TimingAspect.java :
+package com.lab; 
+ 
+import org.aspectj.lang.ProceedingJoinPoint; 
+import org.aspectj.lang.annotation.Around; 
+import org.aspectj.lang.annotation.Aspect; 
+import org.springframework.stereotype.Component; 
+ 
+@Aspect 
+@Component 
+public class TimingAspect { 
+    @Around("execution(* com.lab.BankService.*(..))") 
+    public Object profile(ProceedingJoinPoint pjp) throws Throwable { 
+        long start = System.currentTimeMillis(); 
+        Object res = pjp.proceed(); 
+        long duration = System.currentTimeMillis() - start; 
+        System.out.println("[PROFILER] Method '" + 
+pjp.getSignature().getName() + "' executed in " + duration + " ms"); 
+        return res; 
+    } 
+} 
+
+
+Beans.xml :
+<?xml version="1.0" encoding="UTF-8"?> 
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:context="http://www.springframework.org/schema/context" 
+       xmlns:aop="http://www.springframework.org/schema/aop" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+http://www.springframework.org/schema/beans/spring-beans.xsd 
+       http://www.springframework.org/schema/context 
+http://www.springframework.org/schema/context/spring-context.xsd 
+       http://www.springframework.org/schema/aop 
+http://www.springframework.org/schema/aop/spring-aop.xsd"> 
+ 
+    <context:component-scan base-package="com.lab"/> 
+    <aop:aspectj-autoproxy/> 
+</beans> 
+
+
+App.java :
+package com.lab; 
+import org.springframework.context.ApplicationContext; 
+
+import 
+org.springframework.context.support.ClassPathXmlApplicationContext; 
+ 
+public class App { 
+    public static void main(String[] args) { 
+        ApplicationContext ctx = new 
+ClassPathXmlApplicationContext("Beans.xml"); 
+        BankService bank = ctx.getBean(BankService.class); 
+        bank.deposit(50000.0); 
+        ((ClassPathXmlApplicationContext) ctx).close(); 
+    } 
+} 

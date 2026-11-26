@@ -1,0 +1,43 @@
+* Teacher.java : 
+package com.lab;
+public class Teacher {
+private int teacherId;
+private String name;
+private String department;
+}
+public void setTeacherId(int teacherId) { this.teacherId = teacherId; }
+public void setName(String name) { this.name = name; }
+public void setDepartment(String department) { this.department =
+department; }
+public void display() {
+System.out.println("Teacher ID   : " + teacherId);
+System.out.println("Teacher Name : " + name);
+System.out.println("Department   : " + department);
+}
+
+* Beans.xml :
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans.xsd">
+<bean id="teacher" class="com.lab.Teacher">
+<property name="teacherId" value="501"/>
+<property name="name" value="Prof. Satpute Ma'am"/>
+<property name="department" value="Computer Science"/>
+</bean>
+</beans>
+
+ * App.java :
+package com.lab;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+public class App {
+public static void main(String[] args) {
+ApplicationContext context = new
+ClassPathXmlApplicationContext("Beans.xml");
+Teacher teacher = context.getBean("teacher", Teacher.class);
+teacher.display();
+((ClassPathXmlApplicationContext) context).close();
+}
+}

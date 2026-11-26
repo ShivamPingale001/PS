@@ -1,0 +1,72 @@
+Engine.java :
+package com.lab; 
+ 
+public class Engine { 
+    private String engineModel; 
+    public void setEngineModel(String engineModel) { this.engineModel = 
+engineModel; } 
+    public String getEngineModel() { return engineModel; } 
+} 
+
+Car.java :
+package com.lab; 
+public class Car { 
+    private String carName; 
+    private Engine engine; 
+ 
+    public void setCarName(String carName) { this.carName = carName; } 
+    public void setEngine(Engine engine) { this.engine = engine; } 
+ 
+    public void display() { 
+        System.out.println("Car Model : " + carName); 
+        System.out.println("Engine    : " + engine.getEngineModel()); 
+    } 
+} 
+
+Beans.xml :
+<?xml version="1.0" encoding="UTF-8"?> 
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans/spring-beans.xsd"> 
+ 
+    <bean id="carBean" class="com.lab.Car"> 
+        <property name="carName" value="Mahindra Thar Roxx"/> 
+        <property name="engine"> 
+ 
+            <!-- Inner bean definition --> 
+            <bean class="com.lab.Engine"> 
+                <property name="engineModel" value="2.0L mStallion Turbo
+Petrol"/> 
+            </bean> 
+        </property> 
+    </bean> 
+</beans> 
+
+App.java : 
+package com.lab; 
+import org.springframework.context.ApplicationContext; 
+import 
+org.springframework.context.support.ClassPathXmlApplicationContext; 
+import org.springframework.beans.factory.NoSuchBeanDefinitionException; 
+ 
+public class App { 
+    public static void main(String[] args) { 
+        ApplicationContext context = new 
+ClassPathXmlApplicationContext("Beans.xml"); 
+        Car car = context.getBean("carBean", Car.class); 
+        car.display(); 
+ 
+        System.out.println(" 
+Attempting to retrieve Engine bean directly by type..."); 
+        try { 
+            context.getBean(Engine.class); 
+        } catch (NoSuchBeanDefinitionException e) { 
+            System.out.println("Caught Expected Exception: 
+NoSuchBeanDefinitionException"); 
+            System.out.println("Confirmed: Inner bean is NOT visible to 
+ApplicationContext!"); 
+        } 
+        ((ClassPathXmlApplicationContext) context).close(); 
+    } 
+} 

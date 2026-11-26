@@ -1,0 +1,60 @@
+Employee.java :
+package com.lab; 
+ 
+public class Employee { 
+    private int id; 
+    private String name; 
+    private String designation; 
+ 
+    public void setId(int id) { this.id = id; } 
+    public void setName(String name) { this.name = name; } 
+    public void setDesignation(String designation) { this.designation = 
+designation; } 
+ 
+    public void printDetails() { 
+        System.out.println("Emp ID: " + id + " | Name: " + name + " | 
+Role: " + designation); 
+    } 
+} 
+
+Beans.xml :
+<?xml version="1.0" encoding="UTF-8"?> 
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans/spring-beans.xsd"> 
+ 
+    <bean id="devEmp" class="com.lab.Employee"> 
+        <property name="id" value="101"/> 
+        <property name="name" value="Aniket Tayade"/> 
+        <property name="designation" value="AI/ML Engineer"/> 
+    </bean> 
+ 
+    <bean id="leadEmp" class="com.lab.Employee"> 
+ 
+        <property name="id" value="102"/> 
+        <property name="name" value="Akriti Thakur"/> 
+        <property name="designation" value=”MERN Stack Developer"/> 
+    </bean> 
+</beans> 
+
+App.java :
+package com.lab; 
+ 
+import org.springframework.context.ApplicationContext; 
+import 
+org.springframework.context.support.ClassPathXmlApplicationContext; 
+ 
+public class App { 
+    public static void main(String[] args) { 
+        ApplicationContext context = new 
+ClassPathXmlApplicationContext("Beans.xml"); 
+        Employee e1 = context.getBean("devEmp", Employee.class); 
+        Employee e2 = context.getBean("leadEmp", Employee.class); 
+        System.out.println("--- Employee 1 ---"); 
+        e1.printDetails(); 
+        System.out.println("--- Employee 2 ---"); 
+        e2.printDetails(); 
+        ((ClassPathXmlApplicationContext) context).close(); 
+    } 
+} 

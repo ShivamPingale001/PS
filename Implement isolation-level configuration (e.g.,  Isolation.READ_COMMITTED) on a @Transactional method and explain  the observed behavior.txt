@@ -1,0 +1,63 @@
+AccountService.java :
+package com.lab; 
+ 
+import org.springframework.stereotype.Service; 
+import org.springframework.transaction.annotation.Isolation; 
+import org.springframework.transaction.annotation.Transactional; 
+ 
+@Service 
+public class AccountService { 
+    @Transactional(isolation = Isolation.READ_COMMITTED) 
+    public void queryAccount(int accId) { 
+        System.out.println("[TRANSACTION ISOLATION] Running at 
+Isolation.READ_COMMITTED for Account #" + accId); 
+        System.out.println("Result: Enforces that dirty/uncommitted 
+modifications made by concurrent transactions remain invisible."); 
+    } 
+} 
+
+
+Beans.xml :
+<?xml version="1.0" encoding="UTF-8"?> 
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:context="http://www.springframework.org/schema/context" 
+       xmlns:tx="http://www.springframework.org/schema/tx" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+http://www.springframework.org/schema/beans/spring-beans.xsd 
+       http://www.springframework.org/schema/context 
+http://www.springframework.org/schema/context/spring-context.xsd 
+       http://www.springframework.org/schema/tx 
+http://www.springframework.org/schema/tx/spring-tx.xsd"> 
+ 
+    <context:component-scan base-package="com.lab"/> 
+    <bean id="dataSource" 
+class="org.springframework.jdbc.datasource.DriverManagerDataSource"> 
+        <property name="driverClassName" value="org.h2.Driver"/> 
+        <property name="url" value="jdbc:h2:mem:bankdb;DB_CLOSE_DELAY=
+1"/> 
+    </bean> 
+    <bean id="transactionManager" 
+class="org.springframework.jdbc.datasource.DataSourceTransactionManager"> 
+        <property name="dataSource" ref="dataSource"/> 
+    </bean> 
+    <tx:annotation-driven transaction-manager="transactionManager"/> 
+</beans> 
+
+
+App.java :
+package com.lab; 
+ 
+import org.springframework.context.ApplicationContext; 
+import 
+org.springframework.context.support.ClassPathXmlApplicationContext; 
+ 
+public class App { 
+    public static void main(String[] args) { 
+        ApplicationContext ctx = new 
+ClassPathXmlApplicationContext("Beans.xml"); 
+        AccountService service = ctx.getBean(AccountService.class); 
+        service.queryAccount(4012); 
+        ((ClassPathXmlApplicationContext) ctx).close(); 
+    } 
+}

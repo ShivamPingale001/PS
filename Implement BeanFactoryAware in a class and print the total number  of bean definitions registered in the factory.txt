@@ -1,0 +1,50 @@
+BeanFactoryInspector.java : 
+package com.lab; 
+ 
+import org.springframework.beans.factory.BeanFactory; 
+import org.springframework.beans.factory.BeanFactoryAware; 
+import 
+org.springframework.beans.factory.support.DefaultListableBeanFactory; 
+ 
+public class BeanFactoryInspector implements BeanFactoryAware { 
+    @Override 
+    public void setBeanFactory(BeanFactory beanFactory) { 
+        if (beanFactory instanceof DefaultListableBeanFactory) { 
+            DefaultListableBeanFactory dlbf = 
+(DefaultListableBeanFactory) beanFactory; 
+            
+System.out.println("=================================================="); 
+            System.out.println("Total Bean Definitions in Factory: " + 
+dlbf.getBeanDefinitionCount()); 
+            System.out.println("Registered Bean Names:"); 
+            for (String beanName : dlbf.getBeanDefinitionNames()) { 
+                System.out.println(" - " + beanName); 
+            } 
+            
+System.out.println("=================================================="); 
+        } 
+    } 
+} 
+
+Beans.xml :
+<?xml version="1.0" encoding="UTF-8"?> 
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans/spring-beans.xsd"> 
+ 
+    <bean id="inspector" class="com.lab.BeanFactoryInspector"/> 
+</beans> 
+
+App.java :
+package com.lab; 
+ 
+import org.springframework.context.support.ClassPathXmlApplicationContext; 
+ 
+public class App { 
+    public static void main(String[] args) { 
+        ClassPathXmlApplicationContext ctx = new 
+ClassPathXmlApplicationContext("Beans.xml"); 
+        ctx.close(); 
+    } 
+} 

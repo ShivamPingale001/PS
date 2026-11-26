@@ -1,0 +1,88 @@
+Payment.java :
+package com.lab; 
+ 
+public interface Payment { 
+    void processPayment(); 
+} 
+
+
+CashPayment.java :
+package com.lab; 
+ 
+import org.springframework.stereotype.Component; 
+ 
+@Component("cashPayment") 
+public class CashPayment implements Payment { 
+    @Override 
+    public void processPayment() { 
+        System.out.println("Mode: Cash on Delivery payment 
+acknowledged."); 
+    } 
+} 
+
+
+UPIPayment.java :
+package com.lab; 
+ 
+import org.springframework.stereotype.Component; 
+ 
+@Component("upiPayment") 
+public class UPIPayment implements Payment { 
+    @Override 
+    public void processPayment() { 
+        System.out.println("Mode: Instant UPI Payment verified via 
+Virtual Payment Address (VPA)."); 
+    } 
+} 
+
+
+PaymentService.java :
+package com.lab; 
+ 
+import org.springframework.beans.factory.annotation.Autowired; 
+import org.springframework.beans.factory.annotation.Qualifier; 
+import org.springframework.stereotype.Service; 
+ 
+@Service 
+public class PaymentService { 
+    @Autowired 
+    @Qualifier("upiPayment") 
+    private Payment payment; 
+ 
+    public void checkout() { 
+        payment.processPayment(); 
+    } 
+} 
+
+
+Beans.xml :
+<?xml version="1.0" encoding="UTF-8"?> 
+<beans xmlns="http://www.springframework.org/schema/beans" 
+ 
+       xmlns:context="http://www.springframework.org/schema/context" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans/spring-beans.xsd 
+       http://www.springframework.org/schema/context 
+       http://www.springframework.org/schema/context/spring-context.xsd"> 
+ 
+    <context:component-scan base-package="com.lab"/> 
+</beans> 
+
+
+App.java : 
+package com.lab; 
+ 
+import org.springframework.context.ApplicationContext; 
+import 
+org.springframework.context.support.ClassPathXmlApplicationContext; 
+ 
+public class App { 
+    public static void main(String[] args) { 
+        ApplicationContext context = new 
+ClassPathXmlApplicationContext("Beans.xml"); 
+        PaymentService ps = context.getBean(PaymentService.class); 
+        ps.checkout(); 
+        ((ClassPathXmlApplicationContext) context).close(); 
+    } 
+}

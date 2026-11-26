@@ -1,0 +1,73 @@
+Address.java :
+package com.lab; 
+ 
+public class Address { 
+    private String city; 
+    private String state; 
+    private int pinCode; 
+ 
+    public void setCity(String city) { this.city = city; } 
+    public void setState(String state) { this.state = state; } 
+    public void setPinCode(int pinCode) { this.pinCode = pinCode; } 
+ 
+    @Override 
+    public String toString() { 
+        return city + ", " + state + " - " + pinCode; 
+    } 
+} 
+
+Student.java :
+package com.lab; 
+ 
+public class Student { 
+    private String name; 
+    private int rollNo; 
+    private Address address; 
+ 
+    public void setName(String name) { this.name = name; } 
+    public void setRollNo(int rollNo) { this.rollNo = rollNo; } 
+    public void setAddress(Address address) { this.address = address; } 
+ 
+    public void display() { 
+        System.out.println("Roll No : " + rollNo); 
+        System.out.println("Name    : " + name); 
+        System.out.println("Address : " + address); 
+    } 
+} 
+
+Beans.xml  : 
+<?xml version="1.0" encoding="UTF-8"?> 
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+       xsi:schemaLocation="http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans/spring-beans.xsd"> 
+ 
+    <bean id="addrBean" class="com.lab.Address"> 
+        <property name="city" value="Pune"/> 
+        <property name="state" value="Maharashtra"/> 
+        <property name="pinCode" value="412105"/> 
+    </bean> 
+ 
+    <bean id="studentBean" class="com.lab.Student"> 
+        <property name="rollNo" value="11"/> 
+        <property name="name" value="Aniket Tayade"/> 
+        <property name="address" ref="addrBean"/> 
+    </bean> 
+</beans> 
+
+App.java :
+package com.lab; 
+ 
+import org.springframework.context.ApplicationContext; 
+import 
+org.springframework.context.support.ClassPathXmlApplicationContext; 
+ 
+public class App { 
+    public static void main(String[] args) { 
+        ApplicationContext context = new 
+ClassPathXmlApplicationContext("Beans.xml"); 
+        Student student = (Student) context.getBean("studentBean"); 
+        student.display(); 
+        ((ClassPathXmlApplicationContext) context).close(); 
+    } 
+} 
